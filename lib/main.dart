@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:quizzler/quiz_brain.dart';
 
 // new QuizBrain object named quizBrain (object must be snakeCase)
 QuizBrain quizBrain = QuizBrain();
+
 void main() => runApp(Quizzler());
 
 class Quizzler extends StatelessWidget {
@@ -29,8 +31,6 @@ class QuizPage extends StatefulWidget {
 
 class _QuizPageState extends State<QuizPage> {
   List<Icon> scoreKeeper = [];
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -69,16 +69,7 @@ class _QuizPageState extends State<QuizPage> {
               ),
               onPressed: () {
                 //The user picked true.
-                setState(() {
-                  bool correctAnswer = quizBrain.getQuestionAnswer();
-                  if (correctAnswer == true) {
-                    print('correct');
-                  } else {
-                    print('wrong');
-                  }
-                  quizBrain.nextQuestion();
-                  scoreKeeper.add(Icon(Icons.check, color: Colors.green));
-                });
+                checkAnswer(true, context);
               },
             ),
           ),
@@ -97,17 +88,7 @@ class _QuizPageState extends State<QuizPage> {
               ),
               onPressed: () {
                 //The user picked false.
-                setState(() {
-                  bool correctAnswer = quizBrain.getQuestionAnswer();
-                  if (correctAnswer == false) {
-                    print('correct');
-                  } else {
-                    print('wrong');
-                  }
-
-                  quizBrain.nextQuestion();
-                  scoreKeeper.add(Icon(Icons.close, color: Colors.red));
-                });
+                checkAnswer(false, context);
               },
             ),
           ),
@@ -117,6 +98,32 @@ class _QuizPageState extends State<QuizPage> {
         ),
       ],
     );
+  }
+
+  void checkAnswer(bool userPickedAnswer, BuildContext context) {
+    bool theEnd = quizBrain.isFinished();
+
+    if (theEnd) {
+      // show alert box
+      Alert(
+        context: context,
+        title: "RFLUTTER ALERT",
+        desc: "You have reached the end of the app.",
+      ).show();
+      quizBrain.reset();
+      scoreKeeper = [];
+    } else {
+      setState(() {
+        bool correctAnswer = quizBrain.getQuestionAnswer();
+        if (correctAnswer == userPickedAnswer) {
+          scoreKeeper.add(Icon(Icons.check, color: Colors.green));
+        } else {
+          scoreKeeper.add(Icon(Icons.close, color: Colors.red));
+        }
+
+        quizBrain.nextQuestion();
+      });
+    }
   }
 }
 
